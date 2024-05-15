@@ -8,8 +8,7 @@ with open('tokens.json') as f:
 email = tokens['email']
 api_token = tokens['api_token']
 zone_id = tokens['zone_id']
-ruleset_id = tokens['ruleset_id']
-rule_id = tokens['rule_id']
+dns_record_name = tokens['dns_record_name']
 dns_record_id = tokens['dns_record_id']
 
 def get_public_ip():
@@ -27,36 +26,11 @@ def get_public_ip():
     
 new_destination_ip = get_public_ip()
 
-# Define la solicitud para la API de Cloudflare con el nuevo destino de la regla de redirección
-base_url = f'https://api.cloudflare.com/client/v4/zones/{zone_id}/rulesets/{ruleset_id}/rules/{rule_id}'
-headers = {'X-Auth-Key': api_token, 'X-Auth-Email': email, 'Content-type': 'application/json'}
-data = {
-    "action": "redirect",
-    "action_parameters": {
-        "from_value":{
-            "target_url": {
-                "value": new_destination_ip,
-            },
-            "status_code": 302
-        },
-    },
-    "expression": "http.host eq \"server.agustin.berguecio.cl\"",
-    "description": "Redirección para server.agustin.berguecio.cl",
-    "enabled": True
-}
-
-# Envía la solicitud PUT para actualizar la regla de redirección
-response = requests.patch(base_url, headers=headers, json=data)
-if response.status_code == 200:
-    print('Regla de redirección actualizada exitosamente.')
-else:
-    print('Error al actualizar la regla de redirección:', response.text)
-
-
 update_dns_url = f'https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{dns_record_id}'
+headers = {'X-Auth-Key': api_token, 'X-Auth-Email': email, 'Content-type': 'application/json'}
 update_data = {
     'type': 'A',
-    'name': 'agustin.berguecio.cl',
+    'name': dns_record_name,
     'content': new_destination_ip,
     'ttl': 1,  # 1 para 'automatic'
     'proxied': False 
@@ -68,4 +42,4 @@ if response.status_code == 200:
 else:
     print('Error al actualizar el registro DNS:', response.text)
 
-# https://developers.cloudflare.com/api/operations/updateZoneRulesetRule
+# https://developers.cloudflare.com/api
