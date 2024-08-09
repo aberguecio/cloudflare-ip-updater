@@ -1,15 +1,14 @@
 import requests
 import json
 
-# Load credentials and details from tokens.json
+# Cargar credenciales y detalles desde tokens.json
 with open('tokens.json') as f:
     tokens = json.load(f)
 
 email = tokens['email']
 api_token = tokens['api_token']
 zone_id = tokens['zone_id']
-dns_record_name = tokens['dns_record_name']
-dns_record_id = tokens['dns_record_id']
+dns_records = tokens['dns']
 
 def get_public_ip():
     try:
@@ -23,23 +22,35 @@ def get_public_ip():
     except Exception as e:
         print('Error al obtener la IP pública:', str(e))
         return None
-    
+
+# Obtener la nueva IP pública
 new_destination_ip = get_public_ip()
 
-update_dns_url = f'https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{dns_record_id}'
-headers = {'X-Auth-Key': api_token, 'X-Auth-Email': email, 'Content-type': 'application/json'}
-update_data = {
-    'type': 'A',
-    'name': dns_record_name,
-    'content': new_destination_ip,
-    'ttl': 1,  # 1 para 'automatic'
-    'proxied': False 
-}
 
-response = requests.put(update_dns_url, headers=headers, json=update_data)
-if response.status_code == 200:
-    print('Registro DNS actualizado exitosamente.')
-else:
-    print('Error al actualizar el registro DNS:', response.text)
+for dns_record in dns_records:
+    dns_record_name = dns_record['dns_record_name']
+    dns_record_id = dns_record['dns_record_id']
+
+    update_dns_url = f'https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{dns_record_id}'
+    headers = {
+        'X-Auth-Key': api_token,
+        'X-Auth-Email': email,
+        'Content-type': 'application/json'
+    }
+    update_data = {
+        'type': 'A',
+        'name': dns_record_name,
+        'content': new_destination_ip,
+        'ttl': 1,  # 1 para 'automatic'
+        'proxied': True 
+    }
+
+    response = requests.put(update_dns_url, headers=headers, json=update_data)
+    if response.status_code == 200:
+        print(f'Registro DNS {dns_record_name} actualizado exitosamente.')
+    else:
+        print(f'Error al actualizar el registro DNS {dns_record_name}:', response.text)
+
+
 
 # https://developers.cloudflare.com/api
