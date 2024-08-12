@@ -37,8 +37,8 @@ def all_dns_records():
         print('Error al obtener los registros DNS:', response.text)
         return None
     
-def update_dns_record(dns_record_id, dns_record_name, new_destination_ip, proxied, comment):
-    update_dns_url = f'https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{dns_record_id}'
+def update_dns_record(dns_record, new_destination_ip):
+    update_dns_url = f'https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{dns_record["id"]}'
     headers = {
         'X-Auth-Key': api_token,
         'X-Auth-Email': email,
@@ -46,18 +46,18 @@ def update_dns_record(dns_record_id, dns_record_name, new_destination_ip, proxie
     }
     update_data = {
         'type': 'A',
-        'name': dns_record_name,
+        'name': dns_record['name'],
         'content': new_destination_ip,
         'ttl': 1,  # 1 para 'automatic'
-        'proxied': proxied,
-        'comment': comment
+        'proxied': dns_record['proxied'],
+        'comment': dns_record['comment']
     }
 
     response = requests.put(update_dns_url, headers=headers, json=update_data)
     if response.status_code == 200:
-        print(f'Registro DNS {dns_record_name} actualizado exitosamente.')
+        print(f'Registro DNS {dns_record["name"]} actualizado exitosamente.')
     else:
-        print(f'Error al actualizar el registro DNS {dns_record_name}:', response.text)
+        print(f'Error al actualizar el registro DNS {dns_record["name"]}:', response.text)
     
 
 # Obtener la nueva IP pública
@@ -82,14 +82,7 @@ for dns_record in dns_records:
         continue
 
     if comment[0] == 'update':
-        dns_record_name = dns_record['name']
-        dns_record_id = dns_record['id']
-        if len(comment) >= 2:
-            proxied = comment[1] == "proxied"
-        else:
-            proxied = False
-
-        update_dns_record(dns_record_id, dns_record_name, new_destination_ip, proxied, dns_record['comment'])
+        update_dns_record(dns_record, new_destination_ip)
 
 
 # https://developers.cloudflare.com/api

@@ -1,6 +1,6 @@
 # Clodflare-ip-updater
 Updatea la ip de todos los dominios que quieras en cloudflare con tu ip local.
-Para que se actualisen tienes que poner "update" en el comment. Si quieres que quede proxied ponle "update proxied" y si no ponle "update unproxied"
+Para que se actualisen tienes que poner "update" en el comment.
 
 Agregalo en un cronjob para que se ejecute de manera periodica.
 
@@ -13,4 +13,3 @@ crea el archivo tokens.json
     "zone_id": "tu_zone_id",
 }
 ´´´
-
