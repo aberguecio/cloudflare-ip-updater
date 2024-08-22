@@ -1,15 +1,19 @@
-# Clodflare-ip-updater
-Updatea la ip de todos los dominios que quieras en cloudflare con tu ip local.
-Para que se actualisen tienes que poner "update" en el comment.
+# Cloudflare IP Updater
 
-Agregalo en un cronjob para que se ejecute de manera periodica.
+This script updates the IP address for all desired domains in Cloudflare with your local IP. When updating, it retains the existing `proxied` or `non-proxied` status for each domain.
 
-## tokens
-crea el archivo tokens.json
-´´´
+To trigger the update, you need to include "update" in the commit message. You can write anything after "update" as only the first word is checked.
+
+Consider adding this script to a cron job for periodic execution.
+
+## Tokens
+
+Create a `tokens.json` file with the following structure:
+
+```json
 {
-    "email": "tu_mail",
-    "api_token": "tu_api_token",
-    "zone_id": "tu_zone_id",
+    "email": "your_email",
+    "api_token": "your_api_token",
+    "zone_id": "your_zone_id"
 }
-´´´
+```
