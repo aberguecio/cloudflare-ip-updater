@@ -1,4 +1,4 @@
-# Dinamic Cloudflare IP Updater
+# Multi-Domain Cloudflare IP Sync
 
 This script updates the IP address for all desired domains in Cloudflare with your local IP. When updating, it retains the existing `proxied` or `non-proxied` status for each domain.
 
