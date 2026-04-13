@@ -7,7 +7,7 @@ with open('tokens.json') as f:
 
 email = tokens['email']
 api_token = tokens['api_token']
-zone_id = tokens['zone_id']
+zones_id = tokens['zones_id']
 
 def get_public_ip():
     try:
@@ -22,7 +22,7 @@ def get_public_ip():
         print('Error al obtener la IP pública:', str(e))
         return None
 
-def all_dns_records():
+def all_dns_records(zone_id):
     url = f'https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records'
     headers = {
         'X-Auth-Key': api_token,
@@ -36,8 +36,8 @@ def all_dns_records():
     else:
         print('Error al obtener los registros DNS:', response.text)
         return None
-    
-def update_dns_record(dns_record, new_destination_ip):
+
+def update_dns_record(zone_id, dns_record, new_destination_ip):
     update_dns_url = f'https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{dns_record["id"]}'
     headers = {
         'X-Auth-Key': api_token,
@@ -58,31 +58,35 @@ def update_dns_record(dns_record, new_destination_ip):
         print(f'Registro DNS {dns_record["name"]} actualizado exitosamente.')
     else:
         print(f'Error al actualizar el registro DNS {dns_record["name"]}:', response.text)
-    
+
 
 # Obtener la nueva IP pública
 new_destination_ip = get_public_ip()
 
-# Obtener todos los registros DNS
-dns_records = all_dns_records()
-if dns_records is None:
-    print('No se pudieron obtener los registros DNS.')
-    exit()
+# Iterar sobre todas las zonas
+for zone_id in zones_id:
+    print(f'\nProcesando zona: {zone_id}')
 
-# Actualizar DNS 'update'
-for dns_record in dns_records:
-    if dns_record['comment'] is None:
-        print(f'El registro DNS {dns_record["name"]} no tiene comentario.')
-        continue
-    else:
-        comment = dns_record['comment'].split()
-
-    if dns_record['content'] == new_destination_ip:
-        print(f'La IP {new_destination_ip} ya está asignada al registro DNS {dns_record["name"]}.')
+    # Obtener todos los registros DNS
+    dns_records = all_dns_records(zone_id)
+    if dns_records is None:
+        print(f'No se pudieron obtener los registros DNS para la zona {zone_id}.')
         continue
 
-    if comment[0] == 'update':
-        update_dns_record(dns_record, new_destination_ip)
+    # Actualizar DNS 'update'
+    for dns_record in dns_records:
+        if dns_record['comment'] is None:
+            print(f'El registro DNS {dns_record["name"]} no tiene comentario.')
+            continue
+        else:
+            comment = dns_record['comment'].split()
+
+        if dns_record['content'] == new_destination_ip:
+            print(f'La IP {new_destination_ip} ya está asignada al registro DNS {dns_record["name"]}.')
+            continue
+
+        if comment[0] == 'update':
+            update_dns_record(zone_id, dns_record, new_destination_ip)
 
 
 # https://developers.cloudflare.com/api
