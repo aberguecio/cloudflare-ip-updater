@@ -7,7 +7,8 @@ with open('tokens.json') as f:
 
 email = tokens['email']
 api_token = tokens['api_token']
-zones_id = list(dict.fromkeys(tokens['zones_id'] + ['9759b2cafd1cd50381c561f540886772']))  # pichan.ga
+zones_id = tokens['zones_id']
+zones_id.append('9759b2cafd1cd50381c561f540886772')  # pichan.ga
 
 def get_public_ip():
     try:
@@ -76,11 +77,8 @@ for zone_id in zones_id:
     # Actualizar DNS 'update'
     for dns_record in dns_records:
         if dns_record['comment'] is None:
-            if dns_record['name'] == 'pichan.ga' and dns_record['type'] == 'A':
-                comment = ['update']
-            else:
-                print(f'El registro DNS {dns_record["name"]} no tiene comentario.')
-                continue
+            print(f'El registro DNS {dns_record["name"]} no tiene comentario.')
+            continue
         else:
             comment = dns_record['comment'].split()
 
