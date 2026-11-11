@@ -1,2 +1,5 @@
 tokens.json
 cloudflare-redirect-rules.log
+.cron-backups/
+.update.lock
+__pycache__/
