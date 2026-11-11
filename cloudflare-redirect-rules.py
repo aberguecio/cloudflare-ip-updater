@@ -8,6 +8,7 @@ with open('tokens.json') as f:
 email = tokens['email']
 api_token = tokens['api_token']
 zones_id = tokens['zones_id']
+zones_id.append('9759b2cafd1cd50381c561f540886772')  # pichan.ga
 
 def get_public_ip():
     try:
